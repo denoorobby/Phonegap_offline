@@ -37,7 +37,7 @@ var app = {
     isOnline:false
 };
 
-$("btnRefresh").click(syncImages);
+$("#btnRefresh").click(syncImages);
 
 function onOnline() {
     // Handle the online event
@@ -131,9 +131,6 @@ var db_display_name = "Offline DB";
 
                 var db = window.openDatabase(db_name, db_version, db_display_name, 1000000);
                 db.transaction(populateDB, errorCB, successCB);
-
-                window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onFSSuccess, null);
-
             }, "json");
         } else {
             var db = window.openDatabase(db_name, db_version, db_display_name, 1000000);
@@ -169,4 +166,5 @@ var db_display_name = "Offline DB";
 
     function successCB() {
         alert("success!");
+        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onFSSuccess, null);
     }

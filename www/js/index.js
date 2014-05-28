@@ -52,53 +52,6 @@ function onOffline() {
     isOnline = false;
 }
 
-//getImages();
-function getImages() {
-    var url = "https://www.fbml.be/api/api.php?callback=?";
-    console.log("images");
-
-    $.ajax({
-        type: "GET",
-        url: url,
-        contentType: "application/x-www-form-urlencoded; charset=utf-8",
-        dataType: "jsonp",
-        crossDomain: true,
-        cache: false,
-        success: function (data) {
-           
-            var div = document.createElement("div");
-            $(div).addClass("row");
-            $("#imageContainer").append(div);
-
-            $.each(data, function (index, item) {
-                var imgUrl = "https://www.fbml.be/api/img/" + item; // image url
-                window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
-                    var imagePath = fs.root.fullPath + "/" + item; // full file path
-                    var fileTransfer = new FileTransfer();
-                    fileTransfer.download(imgUrl, imagePath, function (entry) {
-                        console.log(entry.fullPath); // entry is fileEntry object
-                        $(div).append('<div class="col-md-4"><img class="img-responsive" src="img/' + entry.fullPath + '" /></div>');
-                        if (!((index + 1) % 3)) {
-                            div = document.createElement("div");
-                            $(div).addClass("row");
-                            $("#imageContainer").append(div);
-                        }
-                    }, function (error) {
-                        console.log("download error source " + error.source);
-                        console.log("download error target " + error.target);
-                        console.log("upload error code" + error.code);
-                    });
-                })
-            });
-        },
-        error: function (e) {
-            alert('Error: ' + e.responseText);
-        }
-    });
-}
-
-
-
 //Global instance of DirectoryEntry for our data
 var DATADIR;
 var knownfiles = [];    
@@ -128,18 +81,18 @@ function gotFiles(entries) {
             for (var j = 0; j < entries.length; j++) {
                 if (entries[j].name === server_files[i]) {
                     foundLocal = true;
-                    renderPicture(entries[j].nativeURL);
+                    renderPicture(entries[j].nativeURL.replace(/\\/g, ''));
                 }
             }
 
             if (!foundLocal) {
                 console.log("need to download " + server_files[i]);
                 var ft = new FileTransfer();
-                var dlPath = DATADIR.nativeURL + "/" + server_files[i];
+                var dlPath = DATADIR.nativeURL.replace(/\\/g, '') + "/" + server_files[i];
                 console.log("downloading image to " + dlPath);
                 ft.download("http://www.fbml.be/api/img/" + escape(server_files[i]), dlPath, function (e) {
-                    renderPicture(e.nativeURL);
-                    console.log("Successful download of " + e.nativeURL);
+                    renderPicture(e.nativeURL.replace(/\\/g, ''));
+                    console.log("Successful download of " + e.nativeURL.replace(/\\/g, ''));
                 }, onError);
             }
         }
@@ -155,21 +108,17 @@ function onError(e){
     console.log(JSON.stringify(e));
 }
 
-function onDeviceReady() {
-    //what do we have in cache already?
-    var networkState = navigator.connection.type;
-    if (networkState != Connection.NONE) {
-        app.isOnline = true;
-    }
-    appReady();
-}
-
 var server_files = [];
 var db_name = "db_offline";
 var db_version = "1.0";
 var db_display_name = "Offline DB";
 
-function appReady() {
+function onDeviceReady() {
+    var networkState = navigator.connection.type;
+    if (networkState != Connection.NONE) {
+        app.isOnline = true;
+    }
+
 
     if (app.isOnline) {
         //$("#status").html("Ready to check remote files...");
@@ -219,15 +168,3 @@ function errorCB(err) {
 function successCB() {
     console.log("success!");
 }
-
-function isTableExists(tx, tableName, callback) {
-    tx.executeSql('SELECT * FROM ' + tableName, [], function (tx, resultSet) {
-        if (resultSet.rows.length <= 0) {
-            callback(false);
-        } else {
-            callback(true);
-        }
-    }, function (err) {
-        callback(false);
-    })
-};

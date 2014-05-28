@@ -57,7 +57,6 @@ var knownfiles = [];
 function onFSSuccess(fileSystem) {
     if (device.platform === "iOS") {
         fileSystem.root.getDirectory("www/data/com.trinch.offline", { create: true }, gotDir, onError);
-        alert(JSON.stringify(fileSystem.root));
     } else {
         fileSystem.root.getDirectory("Android/data/com.trinch.offline", { create: true }, gotDir, onError);
     }   
@@ -67,7 +66,7 @@ function onFSSuccess(fileSystem) {
 function gotDir(d){
     console.log("got dir");
     DATADIR = d;
-    console.log(DATADIR);
+    console.log(d);
 
     var reader = DATADIR.createReader();
     reader.readEntries(function(d){

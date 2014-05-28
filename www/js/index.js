@@ -64,7 +64,6 @@ function onFSSuccess(fileSystem) {
 //The directory entry callback
 function gotDir(d){
     console.log("got dir");
-    console.log(JSON.stringify(d));
     DATADIR = d;
     var reader = DATADIR.createReader();
     reader.readEntries(function(d){
@@ -105,7 +104,6 @@ function renderPicture(path){
 
 function onError(e){
     console.log("ERROR");
-    console.log(JSON.stringify(e));
 }
 
 var server_files = [];
@@ -124,7 +122,6 @@ function onDeviceReady() {
         //$("#status").html("Ready to check remote files...");
         $.get("https://www.fbml.be/api/api.php?callback=?", {}, function (res) {
 
-            console.log(JSON.stringify(res));
             server_files = res;
 
             var db = window.openDatabase(db_name, db_version, db_display_name, 1000000);
@@ -162,7 +159,7 @@ function populateDB(tx) {
 }
 
 function errorCB(err) {
-    alert("Error processing SQL: " + JSON.stringify(err));
+    alert("Error processing SQL: " + err.code);
 }
 
 function successCB() {

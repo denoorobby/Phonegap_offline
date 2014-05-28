@@ -55,7 +55,10 @@ var knownfiles = [];
 
 //Loaded my file system, now let's get a directory entry for where I'll store my crap    
 function onFSSuccess(fileSystem) {
+
+    alert(device.platform + "!");
     if (device.platform === "iOS") {
+       
         fileSystem.root.getDirectory("www/data/com.trinch.offline", { create: true }, gotDir, onError);
     } else {
         fileSystem.root.getDirectory("Android/data/com.trinch.offline", { create: true }, gotDir, onError);
@@ -66,7 +69,6 @@ function onFSSuccess(fileSystem) {
 function gotDir(d){
     console.log("got dir");
     DATADIR = d;
-    console.log(d);
 
     var reader = DATADIR.createReader();
     reader.readEntries(function(d){

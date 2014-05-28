@@ -42,6 +42,8 @@ var app = {
     isOnline:false
 };
 
+$("btnRefresh").click(syncImages);
+
 function onOnline() {
     // Handle the online event
     isOnline = true;
@@ -111,57 +113,61 @@ var db_name = "db_offline";
 var db_version = "1.0";
 var db_display_name = "Offline DB";
 
-function onDeviceReady() {
-    var networkState = navigator.connection.type;
-    if (networkState != Connection.NONE) {
-        app.isOnline = true;
+    function onDeviceReady() {
+
+        var networkState = navigator.connection.type;
+        if (networkState != Connection.NONE) {
+            app.isOnline = true;
+        }
+
+        syncImages();
     }
 
+    function syncImages() {
+        if (app.isOnline) {
+            //$("#status").html("Ready to check remote files...");
+            $.get("https://www.fbml.be/api/api.php?callback=?", {}, function (res) {
 
-    if (app.isOnline) {
-        //$("#status").html("Ready to check remote files...");
-        $.get("https://www.fbml.be/api/api.php?callback=?", {}, function (res) {
+                server_files = res;
 
-            server_files = res;
+                var db = window.openDatabase(db_name, db_version, db_display_name, 1000000);
+                db.transaction(populateDB, errorCB, successCB);
 
+                window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onFSSuccess, null);
+
+            }, "json");
+        } else {
             var db = window.openDatabase(db_name, db_version, db_display_name, 1000000);
-            db.transaction(populateDB, errorCB, successCB);
-
-            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onFSSuccess, null);
-
-        }, "json");
-    } else {
-        var db = window.openDatabase(db_name, db_version, db_display_name, 1000000);
-        db.transaction(getImagesFromDB, errorCB);
+            db.transaction(getImagesFromDB, errorCB);
+        }
     }
-}
 
-function getImagesFromDB(tx) {
-    tx.executeSql('SELECT * FROM tbl_images', [], querySuccess, errorCB);
-}
-
-function querySuccess(tx, results) {
-    var len = results.rows.length;
-    for (var i = 0; i < len; i++) {
-        server_files.push(results.rows.item(i).name);
+    function getImagesFromDB(tx) {
+        tx.executeSql('SELECT * FROM tbl_images', [], querySuccess, errorCB);
     }
-    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onFSSuccess, null);
-}
 
-function populateDB(tx) {
+    function querySuccess(tx, results) {
+        var len = results.rows.length;
+        for (var i = 0; i < len; i++) {
+            server_files.push(results.rows.item(i).name);
+        }
+        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onFSSuccess, null);
+    }
 
-    tx.executeSql('DROP TABLE IF EXISTS tbl_images');
-    tx.executeSql('CREATE TABLE IF NOT EXISTS tbl_images (id unique, name)');
+    function populateDB(tx) {
 
-    $.each(server_files, function (index, item) {
-        tx.executeSql('INSERT INTO tbl_images (id, name) VALUES (' + index + ', "' + item + '")');
-    });
-}
+        tx.executeSql('DROP TABLE IF EXISTS tbl_images');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS tbl_images (id unique, name)');
 
-function errorCB(err) {
-    alert("Error processing SQL: " + err.code);
-}
+        $.each(server_files, function (index, item) {
+            tx.executeSql('INSERT INTO tbl_images (id, name) VALUES (' + index + ', "' + item + '")');
+        });
+    }
 
-function successCB() {
-    console.log("success!");
-}
+    function errorCB(err) {
+        alert("Error processing SQL: " + err.code);
+    }
+
+    function successCB() {
+        console.log("success!");
+    }

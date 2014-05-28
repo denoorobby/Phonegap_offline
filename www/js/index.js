@@ -83,18 +83,18 @@ function gotFiles(entries) {
             for (var j = 0; j < entries.length; j++) {
                 if (entries[j].name === server_files[i]) {
                     foundLocal = true;
-                    renderPicture(entries[j].nativeURL.replace(/\\/g, ''));
+                    renderPicture(entries[j].toURL().replace(/\\/g, ''));
                 }
             }
 
             if (!foundLocal) {
                 console.log("need to download " + server_files[i]);
                 var ft = new FileTransfer();
-                var dlPath = DATADIR.nativeURL.replace(/\\/g, '') + "/" + server_files[i];
+                var dlPath = DATADIR.toURL().replace(/\\/g, '') + "/" + server_files[i];
                 console.log("downloading image to " + dlPath);
                 ft.download("https://www.fbml.be/api/img/" + escape(server_files[i]), dlPath, function (e) {
-                    renderPicture(e.nativeURL.replace(/\\/g, ''));
-                    console.log("Successful download of " + e.nativeURL.replace(/\\/g, ''));
+                    renderPicture(e.toURL().replace(/\\/g, ''));
+                    console.log("Successful download of " + e.toURL().replace(/\\/g, ''));
                 }, onError);
             }
         }

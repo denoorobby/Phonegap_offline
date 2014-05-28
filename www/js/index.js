@@ -58,7 +58,7 @@ var knownfiles = [];
 
 //Loaded my file system, now let's get a directory entry for where I'll store my crap    
 function onFSSuccess(fileSystem) {
-    fileSystem.root.getDirectory("Android/data/com.trinch.offline",{create:true},gotDir,onError);
+        fileSystem.root.getDirectory(device.platform + "/data/com.trinch.offline", { create: true }, gotDir, onError); 
 }
 
 //The directory entry callback

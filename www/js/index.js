@@ -67,6 +67,8 @@ function onFSSuccess(fileSystem) {
 function gotDir(d){
     console.log("got dir");
     DATADIR = d;
+    console.log(DATADIR);
+
     var reader = DATADIR.createReader();
     reader.readEntries(function(d){
         gotFiles(d);

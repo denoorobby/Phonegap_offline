@@ -107,7 +107,7 @@ function renderPicture(path){
 }
 
 function onError(e){
-    alert("ERROR");
+    alert(JSON.stringify(e));
 }
 
 var server_files = [];

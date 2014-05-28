@@ -57,7 +57,7 @@ var knownfiles = [];
 function onFSSuccess(fileSystem) {
 
     if (device.platform == "iOS") {
-        fileSystem.root.getDirectory("www/data/com.trinch.offline", { create: true }, gotDir, onError);
+        fileSystem.root.getDirectory("www", { create: true }, gotDir, onError);
     } else {
         fileSystem.root.getDirectory("Android/data/com.trinch.offline", { create: true }, gotDir, onError);
     }   

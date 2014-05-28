@@ -55,7 +55,11 @@ var knownfiles = [];
 
 //Loaded my file system, now let's get a directory entry for where I'll store my crap    
 function onFSSuccess(fileSystem) {
-        fileSystem.root.getDirectory(device.platform + "/data/com.trinch.offline", { create: true }, gotDir, onError); 
+    if (device.platform === "iOS") {
+        fileSystem.root.getDirectory("www/data/com.trinch.offline", { create: true }, gotDir, onError);
+    } else {
+        fileSystem.root.getDirectory("Android/data/com.trinch.offline", { create: true }, gotDir, onError);
+    }   
 }
 
 //The directory entry callback
@@ -86,7 +90,7 @@ function gotFiles(entries) {
                 var ft = new FileTransfer();
                 var dlPath = DATADIR.nativeURL.replace(/\\/g, '') + "/" + server_files[i];
                 console.log("downloading image to " + dlPath);
-                ft.download("http://www.fbml.be/api/img/" + escape(server_files[i]), dlPath, function (e) {
+                ft.download("https://www.fbml.be/api/img/" + escape(server_files[i]), dlPath, function (e) {
                     renderPicture(e.nativeURL.replace(/\\/g, ''));
                     console.log("Successful download of " + e.nativeURL.replace(/\\/g, ''));
                 }, onError);
@@ -96,11 +100,10 @@ function gotFiles(entries) {
 
 function renderPicture(path){
     $("#photos").append('<div class="col-md-4 col-xs-4"><img class="img-responsive img-thumbnail" src="' + path + '" /></div>');
-    console.log("<img src='"+path+"'>");
 }
 
 function onError(e){
-    console.log("ERROR");
+    alert("ERROR");
 }
 
 var server_files = [];
@@ -120,8 +123,9 @@ var db_display_name = "Offline DB";
 
     function syncImages() {
         if (app.isOnline) {
-            //$("#status").html("Ready to check remote files...");
             $.get("https://www.fbml.be/api/api.php?callback=?", {}, function (res) {
+
+                alert("got server images");
 
                 server_files = res;
 
@@ -164,5 +168,5 @@ var db_display_name = "Offline DB";
     }
 
     function successCB() {
-        console.log("success!");
+        alert("success!");
     }
